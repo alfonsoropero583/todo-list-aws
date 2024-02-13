@@ -24,6 +24,7 @@ resolve_s3 = true
 confirm_changeset = true
 disable_rollback = true
 fail_on_empty_changeset = false
+confirm_changeset = false
 
 [production]
 [production.deploy]
@@ -36,3 +37,4 @@ parameter_overrides = "Stage=\"production\""
 image_repositories = []
 resolve_s3 = true
 fail_on_empty_changeset = false
+confirm_changeset = false
