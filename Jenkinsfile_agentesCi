@@ -33,6 +33,9 @@ pipeline {
 				label '012c6321ccdf9fa2b'
 			}
     		steps {
+				sh'''
+					wget -O samconfig.toml https://raw.githubusercontent.com/alfonsoropero583/todo-list-aws-config/staging/samconfig.toml
+				'''
 				echo "Lanzado Por: "+NODE_NAME
 				echo "Espacio de trabajo: "+WORKSPACE
 				// Generamos el Build
