@@ -1,0 +1,129 @@
+pipeline {
+    agent none
+    stages {
+        stage('Static Test'){
+			agent {
+				label '012c6321ccdf9fa2b'
+			}
+			when {
+        		branch "develop"
+      		}
+    		steps {
+				echo "Lanzado Por: "+NODE_NAME
+				echo "Espacio de trabajo: "+WORKSPACE
+				// Test estatico Flake8
+    			sh'''
+					flake8 --format=pylint --exit-zero src>flake8.out
+            	'''
+            	recordIssues qualityGates: [[threshold: 8, type: 'TOTAL', unstable: true], [threshold: 10, type: 'TOTAL', unstable: false]], tools: [flake8(pattern: 'flake8.out')]
+				// Test estatico Bandit
+				sh'''
+					bandit -r ./src -f custom -o bandit.out -ll --msg-template "{abspath}:{line}: [{test_id}] {msg}"
+            	'''
+                recordIssues qualityGates: [[threshold: 2, type: 'TOTAL', unstable: true], [threshold: 4, type: 'TOTAL', unstable: false]], tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')]
+    		}	
+    	}
+        stage('DeployCI'){
+			agent {
+				label '012c6321ccdf9fa2b'
+			}
+			when {
+        		branch "develop"
+      		}
+    		steps {
+				sh'''
+					wget -O samconfig.toml https://raw.githubusercontent.com/alfonsoropero583/todo-list-aws-config/staging/samconfig.toml
+				'''
+				echo "Lanzado Por: "+NODE_NAME
+				echo "Espacio de trabajo: "+WORKSPACE
+				// Generamos el Build
+				sh'''
+					sam build
+            	'''
+				// Lanzamos deploy
+    			sh'''
+					sam deploy template.yaml --config-env staging
+				'''
+    		}
+    	}
+		stage('DeployCD'){
+			agent {
+				label '012c6321ccdf9fa2b'
+			}
+			when {
+        		branch "master"
+      		}
+    		steps {
+				echo "Lanzado Por: "+NODE_NAME
+				echo "Espacio de trabajo: "+WORKSPACE
+				sh'''
+					wget -O samconfig.toml https://raw.githubusercontent.com/alfonsoropero583/todo-list-aws-config/production/samconfig.toml
+				'''
+				// Generamos el Build
+				sh'''
+					sam build
+            	'''
+				// Lanzamos deploy
+    			sh'''
+					sam deploy template.yaml --config-env staging
+				'''
+    		}
+    	}
+        stage('Rest Test CI'){
+			agent {
+				label '02cfac96c635e05e5'
+			}
+			when {
+        		branch "develop"
+      		}
+    		steps {
+				echo "Lanzado Por: "+NODE_NAME
+				echo "Espacio de trabajo: "+WORKSPACE
+    		    // Almacenar BASE_URL
+				// Lanzamos pytest al archivo todoApiTest.py
+    			sh'''
+    			    export BASE_URL=$(sam list stack-outputs --stack-name todo-list-aws --region us-east-1 --output json | jq '.[0].OutputValue' -r)
+    				pytest --junitxml=result-rest.xml test/integration/todoApiTest.py
+    			'''
+    		}	
+    	}
+		stage('Rest Test CD'){
+			agent {
+				label '02cfac96c635e05e5'
+			}
+			when {
+        		branch "master"
+      		}
+    		steps {
+				echo "Lanzado Por: "+NODE_NAME
+				echo "Espacio de trabajo: "+WORKSPACE
+    		    // Almacenar BASE_URL
+				// Lanzamos pytest al archivo todoApiTest.py
+    			sh'''
+    			    export BASE_URL=$(sam list stack-outputs --stack-name todo-list-aws --region us-east-1 --output json | jq '.[0].OutputValue' -r)
+    				pytest --junitxml=result-rest.xml test/integration/todoApiTest.py
+    			'''
+    		}	
+    	}
+    	stage('Promote'){
+			agent {
+				label '02cfac96c635e05e5'
+			}
+			when {
+        		branch "develop"
+      		}
+    		steps {
+				echo "Lanzado Por: "+NODE_NAME
+				echo "Espacio de trabajo: "+WORKSPACE
+    		    withCredentials([gitUsernamePassword(credentialsId: 'bfd4f7d2-abc7-4936-a6e3-fd9e0eb68536', gitToolName: 'Default')]) {
+    		        // Merge a la rama master
+    				sh '''
+    					git checkout develop && git pull origin develop
+    					git checkout master && git pull origin master && git merge develop && git push origin master
+    				'''
+    		    }
+			}
+    	}
+		
+    }
+}
