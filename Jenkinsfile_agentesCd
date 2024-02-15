@@ -16,6 +16,9 @@ pipeline {
     		steps {
 				echo "Lanzado Por: "+NODE_NAME
 				echo "Espacio de trabajo: "+WORKSPACE
+				sh'''
+					wget -O samconfig.toml https://raw.githubusercontent.com/alfonsoropero583/todo-list-aws-config/production/samconfig.toml
+				'''
 				// Generamos el Build
 				sh'''
 					sam build
