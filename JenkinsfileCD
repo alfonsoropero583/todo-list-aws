@@ -1,24 +1,13 @@
 pipeline {
-    agent none
+    agent any
     stages {
     	stage('Get Code'){
-			agent {
-				label '012c6321ccdf9fa2b'
-			}
     		steps {
     			git branch: 'master', credentialsId: 'bfd4f7d2-abc7-4936-a6e3-fd9e0eb68536', url: 'https://github.com/alfonsoropero583/todo-list-aws.git'
     		}	
     	}
         stage('Deploy'){
-			agent {
-				label '012c6321ccdf9fa2b'
-			}
     		steps {
-				echo "Lanzado Por: "+NODE_NAME
-				echo "Espacio de trabajo: "+WORKSPACE
-				sh'''
-					wget -O samconfig.toml https://raw.githubusercontent.com/alfonsoropero583/todo-list-aws-config/production/samconfig.toml
-				'''
 				// Generamos el Build
 				sh'''
 					sam build
@@ -30,18 +19,13 @@ pipeline {
     		}
     	}
         stage('Rest Test'){
-			agent {
-				label '02cfac96c635e05e5'
-			}
     		steps {
-				echo "Lanzado Por: "+NODE_NAME
-				echo "Espacio de trabajo: "+WORKSPACE
     		    // Almacenar BASE_URL
 				// Lanzamos pytest al archivo todoApiTest.py
     			sh'''
     			    export BASE_URL=$(sam list stack-outputs --stack-name todo-list-aws --region us-east-1 --output json | jq '.[0].OutputValue' -r)
-    				pytest --junitxml=result-rest.xml test/integration/todoApiTest.py
-    			'''
+    				pytest --junitxml=result-rest.xml test/integration/todoApiTestPro.py
+    			'''	
 				junit '**/result-rest.xml'
     		}	
     	}
