@@ -42,7 +42,7 @@ pipeline {
             	'''
 				// Lanzamos deploy
     			sh'''
-					sam deploy template.yaml --config-file /tmp/samconfig.toml --config-env staging
+					sam deploy --config-file /tmp/samconfig.toml --config-env staging
 				'''
     		}
     	}
@@ -65,7 +65,7 @@ pipeline {
             	'''
 				// Lanzamos deploy
     			sh'''
-					sam deploy template.yaml --config-file /tmp/samconfig.toml --config-env staging
+					sam deploy --config-file /tmp/samconfig.toml --config-env staging
 				'''
     		}
     	}
