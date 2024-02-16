@@ -38,7 +38,7 @@ pipeline {
 				echo "Espacio de trabajo: "+WORKSPACE
 				// Generamos el Build
 				sh'''
-					sam build --config-file /tmp/samconfig.toml
+					sam build
             	'''
 				// Lanzamos deploy
     			sh'''
@@ -61,11 +61,11 @@ pipeline {
 				'''
 				// Generamos el Build
 				sh'''
-					sam build --config-file /tmp/samconfig.toml
+					sam build
             	'''
 				// Lanzamos deploy
     			sh'''
-					sam deploy --config-env staging
+					sam deploy --config-env production
 				'''
     		}
     	}
