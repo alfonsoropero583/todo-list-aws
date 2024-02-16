@@ -1,21 +1,13 @@
 pipeline {
-    agent none
+    agent any
     stages {
     	stage('Get Code'){
-			agent {
-				label '012c6321ccdf9fa2b'
-			}
     		steps {
     			git branch: 'develop', credentialsId: 'bfd4f7d2-abc7-4936-a6e3-fd9e0eb68536', url: 'https://github.com/alfonsoropero583/todo-list-aws.git'
     		}	
     	}
         stage('Static Test'){
-			agent {
-				label '012c6321ccdf9fa2b'
-			}
     		steps {
-				echo "Lanzado Por: "+NODE_NAME
-				echo "Espacio de trabajo: "+WORKSPACE
 				// Test estatico Flake8
     			sh'''
 					flake8 --format=pylint --exit-zero src>flake8.out
@@ -29,15 +21,7 @@ pipeline {
     		}	
     	}
         stage('Deploy'){
-			agent {
-				label '012c6321ccdf9fa2b'
-			}
     		steps {
-				sh'''
-					wget -O samconfig.toml https://raw.githubusercontent.com/alfonsoropero583/todo-list-aws-config/staging/samconfig.toml
-				'''
-				echo "Lanzado Por: "+NODE_NAME
-				echo "Espacio de trabajo: "+WORKSPACE
 				// Generamos el Build
 				sh'''
 					sam build
@@ -49,12 +33,7 @@ pipeline {
     		}
     	}
         stage('Rest Test'){
-			agent {
-				label '02cfac96c635e05e5'
-			}
     		steps {
-				echo "Lanzado Por: "+NODE_NAME
-				echo "Espacio de trabajo: "+WORKSPACE
     		    // Almacenar BASE_URL
 				// Lanzamos pytest al archivo todoApiTest.py
     			sh'''
@@ -65,12 +44,7 @@ pipeline {
     		}	
     	}
     	stage('Promote'){
-			agent {
-				label '02cfac96c635e05e5'
-			}
     		steps {
-				echo "Lanzado Por: "+NODE_NAME
-				echo "Espacio de trabajo: "+WORKSPACE
     		    withCredentials([gitUsernamePassword(credentialsId: 'bfd4f7d2-abc7-4936-a6e3-fd9e0eb68536', gitToolName: 'Default')]) {
     		        // Merge a la rama master
     				sh '''

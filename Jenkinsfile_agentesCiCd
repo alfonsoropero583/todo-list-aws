@@ -85,6 +85,7 @@ pipeline {
     			    export BASE_URL=$(sam list stack-outputs --stack-name todo-list-aws --region us-east-1 --output json | jq '.[0].OutputValue' -r)
     				pytest --junitxml=result-rest.xml test/integration/todoApiTest.py
     			'''
+			junit '**/result-rest.xml'
     		}	
     	}
 		stage('Rest Test CD'){
@@ -103,6 +104,7 @@ pipeline {
     			    export BASE_URL=$(sam list stack-outputs --stack-name todo-list-aws --region us-east-1 --output json | jq '.[0].OutputValue' -r)
     				pytest --junitxml=result-rest.xml test/integration/todoApiTest.py
     			'''
+			junit '**/result-rest.xml'
     		}	
     	}
     	stage('Promote'){
