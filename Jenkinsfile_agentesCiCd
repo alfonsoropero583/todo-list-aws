@@ -32,7 +32,7 @@ pipeline {
       		}
     		steps {
 				sh'''
-					wget -O /tmp/samconfig.toml https://raw.githubusercontent.com/alfonsoropero583/todo-list-aws-config/staging/samconfig.toml
+					wget -O samconfig.toml https://raw.githubusercontent.com/alfonsoropero583/todo-list-aws-config/staging/samconfig.toml
 				'''
 				echo "Lanzado Por: "+NODE_NAME
 				echo "Espacio de trabajo: "+WORKSPACE
@@ -42,7 +42,7 @@ pipeline {
             	'''
 				// Lanzamos deploy
     			sh'''
-					sam deploy --config-file /tmp/samconfig.toml --config-env staging
+					sam deploy --config-env staging
 				'''
     		}
     	}
@@ -57,7 +57,7 @@ pipeline {
 				echo "Lanzado Por: "+NODE_NAME
 				echo "Espacio de trabajo: "+WORKSPACE
 				sh'''
-					wget -O /tmp/samconfig.toml https://raw.githubusercontent.com/alfonsoropero583/todo-list-aws-config/production/samconfig.toml
+					wget -O samconfig.toml https://raw.githubusercontent.com/alfonsoropero583/todo-list-aws-config/production/samconfig.toml
 				'''
 				// Generamos el Build
 				sh'''
@@ -65,7 +65,7 @@ pipeline {
             	'''
 				// Lanzamos deploy
     			sh'''
-					sam deploy --config-file /tmp/samconfig.toml --config-env staging
+					sam deploy --config-env staging
 				'''
     		}
     	}
