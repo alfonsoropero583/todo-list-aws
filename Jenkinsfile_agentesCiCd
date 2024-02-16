@@ -119,6 +119,7 @@ pipeline {
     		        // Merge a la rama master
     				sh '''
     					git checkout develop && git pull origin develop
+					git pull origin master
 					git branch -a
     					git checkout --track master && git pull origin master && git merge develop && git push origin master
     				'''
